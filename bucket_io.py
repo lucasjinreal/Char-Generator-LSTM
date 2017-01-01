@@ -149,10 +149,13 @@ class BucketSentenceIter(mx.io.DataIter):
         # truncate each bucket into multiple of batch-size
         bucket_n_batches = []
         for i in range(len(self.data)):
-            bucket_n_batches.append(len(self.data[i]) / self.batch_size)
+            bucket_n_batches.append(int(len(self.data[i]) / self.batch_size))
             self.data[i] = self.data[i][:int(bucket_n_batches[i]*self.batch_size)]
 
-        bucket_plan = np.hstack([np.zeros(n, int)+i for i, n in enumerate(bucket_n_batches)])
+        print(bucket_n_batches)
+        print([i for i in enumerate(bucket_n_batches)])
+        bucket_plan = np.hstack([np.zeros(n, int)+int(i) for i, n in enumerate(bucket_n_batches)])
+        print(bucket_plan)
         np.random.shuffle(bucket_plan)
 
         bucket_idx_all = [np.random.permutation(len(x)) for x in self.data]

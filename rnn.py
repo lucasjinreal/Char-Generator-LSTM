@@ -14,8 +14,9 @@ RNNModel = namedtuple("RNNModel", ["rnn_exec", "symbol",
                                    "seq_data", "seq_labels", "seq_outputs",
                                    "param_blocks"])
 
+
 def rnn(num_hidden, in_data, prev_state, param, seqidx, layeridx, dropout=0., batch_norm=False):
-    if dropout > 0. :
+    if dropout > 0.:
         in_data = mx.sym.Dropout(data=in_data, p=dropout)
     i2h = mx.sym.FullyConnected(data=in_data,
                                 weight=param.i2h_weight,
@@ -30,10 +31,9 @@ def rnn(num_hidden, in_data, prev_state, param, seqidx, layeridx, dropout=0., ba
     hidden = i2h + h2h
 
     hidden = mx.sym.Activation(data=hidden, act_type="tanh")
-    if batch_norm == True:
+    if batch_norm:
         hidden = mx.sym.BatchNorm(data=hidden)
     return RNNState(h=hidden)
-
 
 
 def rnn_unroll(num_rnn_layer, seq_len, input_size,

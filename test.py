@@ -9,9 +9,6 @@ import rnn_model
 import bisect
 logging.getLogger().setLevel(logging.DEBUG)
 
-with open('obama.txt', 'r+') as f:
-    print(f.read()[0: 1000])
-
 
 def read_content(path):
     with open(path) as ins:
@@ -28,51 +25,13 @@ def build_vocab(path):
         if not word in the_vocab:
             the_vocab[word] = idx
             idx += 1
+    print(len(the_vocab))
     return the_vocab
 
 
 def text2id(sentence, the_vocab):
     words = list(sentence)
     return [the_vocab[w] for w in words if len(w) > 0]
-
-vocab = build_vocab('obama.txt')
-print('vocab size = ', len(vocab))
-
-
-seq_len = 129
-num_embed = 256
-num_lstm_layer = 3
-num_hidden = 512
-
-symbol = lstm.lstm_unroll(
-    num_lstm_layer,
-    seq_len,
-    len(vocab) + 1,
-    num_hidden=num_hidden,
-    num_embed=num_embed,
-    num_label=len(vocab) + 1,
-    dropout=0.2
-)
-
-batch_size = 32
-
-init_c = [('l%d_init_c'%l, (batch_size, num_hidden)) for l in range(num_lstm_layer)]
-init_h = [('l%d_init_h'%l, (batch_size, num_hidden)) for l in range(num_lstm_layer)]
-init_states = init_c + init_h
-
-data_train = bucket_io.BucketSentenceIter(
-    "./obama.txt",
-    vocab,
-    [seq_len],
-    batch_size,
-    init_states,
-    seperate_char='\n',
-    text2id=text2id,
-    read_content=read_content)
-
-num_epoch = 1
-# learning rate
-learning_rate = 0.01
 
 
 # Evaluation metric
@@ -188,4 +147,45 @@ def generate_txt():
     print(output)
 
 if __name__ == '__main__':
-    generate_txt()
+    with open('obama.txt', 'r+') as f:
+        print(f.read()[0: 1000])
+
+    vocab = build_vocab('obama.txt')
+    print('vocab size = ', len(vocab))
+
+    seq_len = 129
+    num_embed = 256
+    num_lstm_layer = 3
+    num_hidden = 512
+
+    symbol = lstm.lstm_unroll(
+        num_lstm_layer,
+        seq_len,
+        len(vocab) + 1,
+        num_hidden=num_hidden,
+        num_embed=num_embed,
+        num_label=len(vocab) + 1,
+        dropout=0.2
+    )
+
+    batch_size = 32
+
+    init_c = [('l%d_init_c' % l, (batch_size, num_hidden)) for l in range(num_lstm_layer)]
+    init_h = [('l%d_init_h' % l, (batch_size, num_hidden)) for l in range(num_lstm_layer)]
+    init_states = init_c + init_h
+
+    print(init_c)
+    data_train = bucket_io.BucketSentenceIter(
+        "./obama.txt",
+        vocab,
+        [seq_len],
+        batch_size,
+        init_states,
+        seperate_char='\n',
+        text2id=text2id,
+        read_content=read_content)
+
+    num_epoch = 1
+    # learning rate
+    learning_rate = 0.01
+    # generate_txt()

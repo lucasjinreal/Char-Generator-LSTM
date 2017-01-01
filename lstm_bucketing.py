@@ -8,6 +8,7 @@ import mxnet as mx
 from lstm import lstm_unroll
 from bucket_io import BucketSentenceIter, default_build_vocab
 
+
 def Perplexity(label, pred):
     loss = 0.
     for i in range(pred.shape[0]):
